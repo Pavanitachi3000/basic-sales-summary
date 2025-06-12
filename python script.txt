@@ -1,0 +1,51 @@
+import sqlite3
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Connect to the SQLite database
+conn = sqlite3.connect('sales_data.db')
+
+# 1st SQL Query: Total quantity and revenue by product
+query1 = """
+SELECT 
+    product, 
+    SUM(quantity) AS total_qty, 
+    SUM(quantity * price) AS revenue 
+FROM sales 
+GROUP BY product
+"""
+df_summary = pd.read_sql_query(query1, conn)
+
+# Print results
+print("=== Total Quantity and Revenue by Product ===")
+print(df_summary)
+
+# 2nd SQL Query: Overall total revenue
+query2 = "SELECT SUM(quantity * price) AS total_revenue FROM sales"
+df_total = pd.read_sql_query(query2, conn)
+print("\n=== Total Revenue (All Products) ===")
+print(df_total)
+
+# Plot a bar chart for revenue per product
+df_summary.plot(kind='bar', x='product', y='revenue', color='lightgreen', legend=False)
+plt.title('Revenue by Product')
+plt.ylabel('Revenue')
+plt.xlabel('Product')
+plt.tight_layout()
+plt.savefig("sales_chart.png")  # Optional: Save chart as image
+plt.show()
+
+# Close the connection
+conn.close()
+
+
+output:
+=== Total Quantity and Revenue by Product ===
+    product  total_qty  revenue
+0  Widget A         15     75.0
+1  Widget B          7     56.0
+
+
+=== Total Revenue (All Products) ===
+   total_revenue
+0          131.0
